@@ -7,14 +7,13 @@ import axios from './components/axios';
 import "cropperjs/dist/cropper.css";
 import 'antd/dist/antd.min.css';
 import './index.less';
-import { Button } from 'antd';
 
 interface propsType {
-  token:string;//请求koken。
+  token?:string;//请求koken。
   imgUrl: string;//图片地或者base64.
-  listUrl:string;//获取图片列表接口地址
+  listUrl?:string;//获取图片列表接口地址
   visible: boolean;//显示组件
-  onCancel:Function;//关闭组件回调
+  onCancel?:Function;//关闭组件回调
   onOk?:Function;//上传完成获取图片结果
   style?: any;
   className?:string;//自定义样式
@@ -68,6 +67,9 @@ export const InbizImageSearchScreenshot: React.FC<propsType> = (props) => {
   //截图请求
   const onOk = () => {
     console.log(copeValue, 222);
+    if (!props.listUrl) {
+      return;
+    };
     setLoad(true);
     axios.post(props.listUrl, {
       file: copeValue,
@@ -87,7 +89,7 @@ export const InbizImageSearchScreenshot: React.FC<propsType> = (props) => {
   };
 
   return (
-    <div className={`cropperBox ${props.className||''}`} onClick={e=>e.stopPropagation()} style={{...(props.style||{top: 40}), visibility: visible?'visible':'hidden'}}>
+    <div className={`cropperBox ${props.className||''}`} onClick={e=>e.stopPropagation()} style={{...(props.style||{}), visibility: visible?'visible':'hidden'}}>
       <div className="close" onClick={()=>props.onCancel&&props.onCancel()} dangerouslySetInnerHTML={{ __html: iconClose }} />
       <h3 className="title">请框选图片中要识别的区域</h3>
       <div className="cropper">
