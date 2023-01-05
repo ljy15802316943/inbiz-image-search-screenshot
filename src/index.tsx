@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Cropper from 'react-cropper';
 import { iconClose } from './components/icon';
-import { message } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import axios from './components/axios';
+import Cookies from 'js-cookie';
 import "cropperjs/dist/cropper.css";
 import 'antd/dist/antd.min.css';
 import './index.less';
@@ -11,7 +11,7 @@ import './index.less';
 interface propsType {
   token?:string;//请求koken。
   imgUrl: string;//图片地或者base64.
-  listUrl?:string;//获取图片列表接口地址
+  uploadUrl?:string;//获取图片列表接口地址
   visible: boolean;//显示组件
   onCancel?:Function;//关闭组件回调
   onOk?:Function;//上传完成获取图片结果
@@ -64,27 +64,34 @@ export const InbizImageSearchScreenshot: React.FC<propsType> = (props) => {
     };
   }, []);
 
+  const base64ToFile = (baseData:string) => {
+    let arr:any = baseData.split(',');
+    let type = arr[0].match(/:(.*?);/)[1];
+    let bytes = atob(arr[1]);
+    let n = bytes.length;
+    let bufferArray = new Uint8Array(n);
+    while (n--) {
+      bufferArray[n] = bytes.charCodeAt(n);
+    }
+    return new File([bufferArray], 'test' + Math.random() + '.jpg', { type: type });
+  };
+
   //截图请求
   const onOk = () => {
-    console.log(copeValue, 222);
-    if (!props.listUrl) {
+    if (!props.uploadUrl) {
       return;
     };
     setLoad(true);
-    axios.post(props.listUrl, {
-      file: copeValue,
-      recordId: 14309,
-    }, {
-      headers: {'InWise-Token': props.token}
-    }).then((res:any) => {
+    Cookies.set('token', props.token||'');
+    let formData = new window.FormData();
+    formData.append('file', base64ToFile(copeValue));
+    axios.post(props.uploadUrl, formData).then((res:any) => {
       setLoad(false);
-      if (res.code==='0') {
+      props.onOk&&props.onOk(res);
+      if (res.nResult=='0') {
         cropperRef.current.src = copeValue;
         setImgUrls(copeValue);
-        props.onOk&&props.onOk(res);
-      } else {
-        message.error(res.context||'请求失败');
-      };
+      }
     })
   };
 

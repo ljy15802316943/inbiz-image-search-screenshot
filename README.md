@@ -28,7 +28,7 @@ import { InbizImageSearchScreenshot } from 'inbiz-image-search-screenshot';
 interface propsType {
   token:string;//请求koken。
   imgUrl: string;//图片地或者base64.
-  listUrl:string;//获取图片列表接口地址
+  uploadUrl:string;//上传图片接口地址
   visible: boolean;//显示组件
   onCancel:Function;//关闭组件回调
   onOk?:Function;//上传完成获取图片结果
